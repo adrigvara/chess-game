@@ -40,4 +40,23 @@ def board_after_move(move, board):
     return new_board
 
 def score(board):
-    return 1
+    return result_value(board.result()) if board.is_game_over() else material_heuristic(board)
+
+def result_value(result):
+    return 1 if result == "1-0" else -1 if result == "0-1" else 0
+
+PIECE_TYPE_VALUES = {
+    chess.PAWN: 1,
+    chess.KNIGHT: 2.5,
+    chess.BISHOP: 3,
+    chess.ROOK: 4.7,
+    chess.QUEEN: 7.7
+}
+
+def material_heuristic(board):
+    white_material = material_value(board, chess.WHITE)
+    black_material = material_value(board, chess.BLACK)
+    return (white_material - black_material) / (white_material + black_material)
+
+def material_value(board, color):
+    return sum(PIECE_TYPE_VALUES[piece.piece_type] for piece in board.piece_map().values() if piece.color == color)
