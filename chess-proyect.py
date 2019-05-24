@@ -52,48 +52,46 @@ def draw(result):
 def win(result, color):
     return (result=="1-0" and color==chess.WHITE) or (result=="0-1" and color==chess.BLACK)
 
-PIECE_TYPE_VALUES = {
-    chess.PAWN: 1,
-    chess.KING: 1.7,
-    chess.KNIGHT: 2.5,
-    chess.BISHOP: 3,
-    chess.ROOK: 4.7,
-    chess.QUEEN: 7.7,
-}
-
 def material_heuristic(board):
     white_material = material_value(board, chess.WHITE)
     black_material = material_value(board, chess.BLACK)
     return (white_material - black_material) if board.turn else (black_material - white_material)/(white_material + black_material)
 
 def material_value(board, color):
+    PIECE_TYPE_VALUES = {
+        chess.PAWN: 1,
+        chess.KING: 1.7,
+        chess.KNIGHT: 2.5,
+        chess.BISHOP: 3,
+        chess.ROOK: 4.7,
+        chess.QUEEN: 7.7,
+    }
     return sum(PIECE_TYPE_VALUES[piece.piece_type] for piece in board.piece_map().values() if piece.color == color)
+
+def unicode(board):
+    UNICODE_PIECE_SYMBOLS = {
+        "r": u"|♖", "R": u"|♜",
+        "n": u"|♘", "N": u"|♞",
+        "b": u"|♗", "B": u"|♝",
+        "q": u"|♕", "Q": u"|♛",
+        "k": u"|♔", "K": u"|♚",
+        "p": u"|♙", "P": u"|♟",
+        "1": "| ",
+        "2": "| | ",
+        "3": "| | | ",
+        "4": "| | | | ",
+        "5": "| | | | | ",
+        "6": "| | | | | | ",
+        "7": "| | | | | | | ",
+        "8": "| | | | | | | | ",
+        "/": "|\n",
+    }
+    return my_strtr(board.fen(), UNICODE_PIECE_SYMBOLS)
 
 def my_strtr(cadena, reemplazo):
     import re
     regex = re.compile("(%s)" % "|".join(map(re.escape, reemplazo.keys())))
     return regex.sub(lambda x: str(reemplazo[x.string[x.start() :x.end()]]), cadena)
-
-UNICODE_PIECE_SYMBOLS = {
-    "r": u"|♖", "R": u"|♜",
-    "n": u"|♘", "N": u"|♞",
-    "b": u"|♗", "B": u"|♝",
-    "q": u"|♕", "Q": u"|♛",
-    "k": u"|♔", "K": u"|♚",
-    "p": u"|♙", "P": u"|♟",
-    "1": "| ",
-    "2": "| | ",
-    "3": "| | | ",
-    "4": "| | | | ",
-    "5": "| | | | | ",
-    "6": "| | | | | | ",
-    "7": "| | | | | | | ",
-    "8": "| | | | | | | | ",
-    "/": "|\n",
-}
-
-def board_to_unicode(board):
-    return my_strtr(board.fen(), UNICODE_PIECE_SYMBOLS)
 
 board = chess.Board()
 turn = 1
