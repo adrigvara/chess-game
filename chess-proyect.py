@@ -92,7 +92,7 @@ UNICODE_PIECE_SYMBOLS = {
     "/": "|\n",
 }
 
-def unicode(board):
+def board_to_unicode(board):
     return my_strtr(board.fen(), UNICODE_PIECE_SYMBOLS)
 
 board = chess.Board()
@@ -102,7 +102,7 @@ while not board.is_game_over():
     move = best_move(board, 5)
     board.push(move)
     print(move)
-    print(unicode(board))
+    print(board_to_unicode(board))
     turn+=1
     print(board.attacks(9))
 if board.is_checkmate():
