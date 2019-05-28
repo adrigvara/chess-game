@@ -1,11 +1,11 @@
-from statistics import mean
+from argparse import ArgumentParser
 from math import inf
 from chess import *
 
 ai_color = None
 
 
-def best_move(board, depth=4):
+def best_move(board, depth):
     global ai_color
     ai_color = board.turn
     best_move_yet, highest_score_yet = None, -inf
@@ -182,12 +182,12 @@ KING_SQUARE_TABLE = (
 )
 KING_SQUARE_TABLE_END_board = (
     -50, -40, -30, -20, -20, -30, -40, -50,
-    -30, -20, -10,  0,  0, -10, -20, -30,
-    -30, -10, 20, 30, 30, 20, -10, -30,
-    -30, -10, 30, 40, 40, 30, -10, -30,
-    -30, -10, 30, 40, 40, 30, -10, -30,
-    -30, -10, 20, 30, 30, 20, -10, -30,
-    -30, -30,  0,  0,  0,  0, -30, -30,
+    -30, -20, -10,   0,  0, -10, -20, -30,
+    -30, -10,  20,  30, 30, 20, -10, -30,
+    -30, -10,  30,  40, 40, 30, -10, -30,
+    -30, -10,  30,  40, 40, 30, -10, -30,
+    -30, -10,  20,  30, 30, 20, -10, -30,
+    -30, -30,   0,   0,  0,  0, -30, -30,
     -50, -30, -30, -30, -30, -30, -30, -50,
 )
 PIECE_SQUARE_TABLES = {
@@ -209,12 +209,12 @@ def play_chess(player_color, depth):
     turn = 1
     board = Board()
     while not board.is_game_over():
-        print(board.unicode(invert_color=True))
+        view_board(board)
         move = next_move(board, player_color, depth)
         print("Turn:", turn, "White:" if ai_color else "Black:", move)
         board.push(move)
         turn += 1
-    print(board.unicode(invert_color=True))
+    view_board(board)
     if board.is_checkmate():
         print("checkmate")
     if board.is_stalemate():
@@ -229,8 +229,33 @@ def play_chess(player_color, depth):
         print("variant end")
 
 
+def view_board(board):
+    print(board.unicode(invert_color=True, borders=True))
+
+
 def next_move(board, player_color, depth):
-    return input("player move:") if player_color == board.turn else best_move(board, depth)
+    return player_move(board) if player_color == board.turn else best_move(board, depth)
 
 
-play_chess(None, 4)
+def player_move(board):
+    move = Move.from_uci(input("player move: "))
+    while move not in board.legal_moves:
+        print("the move:", move, "is not legal")
+        move = Move.from_uci(input("player move: "))
+    return move
+
+
+def str_to_color(str):
+    if str.lower() in ('white', 'w'):
+        return WHITE
+    elif str.lower() in ('black', 'b'):
+        return BLACK
+
+
+parser = ArgumentParser(description="Chess game in terminal environment")
+parser.add_argument('-c', '--color', '--player-color', dest='color', type=str_to_color, required=False, default=None,
+                    help='color for the player (default=None)')
+parser.add_argument('-d', '--depth', '--search-depth', dest='depth', type=int, required=False, default=4,
+                    help='depth of search for the best movement for artificial intelligence (default=4)')
+args = parser.parse_args()
+play_chess(args.color, args.depth)
