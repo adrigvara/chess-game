@@ -2,12 +2,17 @@ from argparse import ArgumentParser
 from math import inf
 from chess import *
 
+<<<<<<< Updated upstream
 ai_color = None
 
 
 def best_move(board, depth):
     global ai_color
     ai_color = board.turn
+=======
+
+def best_move(board, depth=6):
+>>>>>>> Stashed changes
     best_move_yet, highest_score_yet = None, -inf
     for move, board in successors(board):
         best_move_yet, highest_score_yet = max(
@@ -60,17 +65,36 @@ def score(board):
     return result_value(board) if board.is_game_over() else heuristic_score(board)
 
 
+
 def result_value(board):
     return 0 if draw(board.result()) else 1 if win(board.result()) else -1
 
 
+
 def draw(result):
     return result == "1/2-1/2"
+<<<<<<< Updated upstream
 
 
 def win(result):
     return (result == "1-0" and ai_color == WHITE) or \
         (result == "0-1" and ai_color == BLACK)
+=======
+
+
+def win(result, color):
+    return (result == "1-0" and color == chess.WHITE) or \
+        (result == "0-1" and color == chess.BLACK)
+
+
+def material_heuristic(board):
+    white_material = material_value(board, chess.WHITE)
+    black_material = material_value(board, chess.BLACK)
+    return (white_material - black_material)/(white_material + black_material)\
+        if board.turn else \
+        (black_material - white_material)/(white_material + black_material)
+
+>>>>>>> Stashed changes
 
 
 def heuristic_score(board):
@@ -90,6 +114,7 @@ def heuristic(heuristic_func):
 @heuristic
 def material_heuristic(board, color):
     PIECE_TYPE_VALUES = {
+<<<<<<< Updated upstream
         KING:   20000,
         QUEEN:  900,
         ROOK:   500,
@@ -266,3 +291,64 @@ parser.add_argument('-d', '--depth', '--search-depth', dest='depth', type=int, r
                     help='depth of search for the best movement for artificial intelligence (default=4)')
 args = parser.parse_args()
 play_chess(args.color, args.depth)
+=======
+        chess.PAWN: 1,
+        chess.KING: 1.7,
+        chess.KNIGHT: 2.5,
+        chess.BISHOP: 3,
+        chess.ROOK: 4.7,
+        chess.QUEEN: 7.7,
+    }
+    return sum(PIECE_TYPE_VALUES[piece.piece_type] for piece in board.piece_map().values()
+               if piece.color == color)
+
+
+def unicode(board):
+    UNICODE_PIECE_SYMBOLS = {
+        "r": u"|♖", "R": u"|♜",
+        "n": u"|♘", "N": u"|♞",
+        "b": u"|♗", "B": u"|♝",
+        "q": u"|♕", "Q": u"|♛",
+        "k": u"|♔", "K": u"|♚",
+        "p": u"|♙", "P": u"|♟",
+        "1": "| ",
+        "2": "| | ",
+        "3": "| | | ",
+        "4": "| | | | ",
+        "5": "| | | | | ",
+        "6": "| | | | | | ",
+        "7": "| | | | | | | ",
+        "8": "| | | | | | | | ",
+        "/": "|\n",
+    }
+    return my_strtr(board.fen(), UNICODE_PIECE_SYMBOLS)
+
+
+def my_strtr(cadena, reemplazo):
+    import re
+    regex = re.compile("(%s)" % "|".join(map(re.escape, reemplazo.keys())))
+    return regex.sub(lambda x: str(reemplazo[x.string[x.start():x.end()]]), cadena)
+
+
+board = chess.Board()
+turn = 1
+while not board.is_game_over():
+    print("turn", turn, "white" if board.turn else "black", "material:", material_heuristic(board))
+    move = best_move(board, 5)
+    board.push(move)
+    print(move)
+    print(unicode(board))
+    turn+=1
+if board.is_checkmate():
+    print("checkmate")
+if board.is_stalemate():
+    print("stalemate")
+if board.is_insufficient_material():
+    print("insufficient material")
+if board.is_seventyfive_moves():
+    print("is seventyfive moves")
+if board.is_fivefold_repetition():
+    print("fivefold repetition")
+if board.is_variant_end():
+    print("variant end")
+>>>>>>> Stashed changes
