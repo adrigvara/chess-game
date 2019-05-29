@@ -238,10 +238,17 @@ def next_move(board, player_color, depth):
 
 
 def player_move(board):
-    move = Move.from_uci(input("player move: "))
-    while move not in board.legal_moves:
-        print("the move:", move, "is not legal")
-        move = Move.from_uci(input("player move: "))
+    while True:
+        try:
+            str = input("player move: ")
+            move = Move.from_uci(str)
+        except ValueError:
+            print(str, "is not a move")
+            continue
+        if move not in board.legal_moves:
+            print(move, "is not a legal move")
+        else:
+            break
     return move
 
 
