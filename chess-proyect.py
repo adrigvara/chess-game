@@ -98,6 +98,10 @@ def material_heuristic(board):
 
 
 def heuristic_score(board):
+    HEURISTIC_TABLE = {
+        material_heuristic: 0.75,
+        space_heuristic: 0.25,
+    }
     return sum(heuristic_weight*heuristic_value(board) for heuristic_value, heuristic_weight
                in HEURISTIC_TABLE.items())
 
@@ -130,104 +134,6 @@ def material_heuristic(board, color):
 def space_heuristic(board, color):
     return sum(len(board.attacks(square)) for square, piece
                in board.piece_map().items() if piece.color == color)
-
-
-@heuristic
-def piece_square_heuristic(board, color):
-    return sum(piece_square_value(piece.piece_type, square, color)
-               for square, piece in board.piece_map().items()
-               if piece.color == color)
-
-
-def piece_square_value(piece_type, square, color):
-    return PIECE_SQUARE_TABLES[piece_type][square] \
-        if color == WHITE else \
-        PIECE_SQUARE_TABLES[piece_type][::-1][square]
-
-
-PAWN_SQUARE_TABLE = (
-    0,  0,   0,   0,   0,   0,   0,   0,
-    50, 50,  50,  50,  50,  50,  50,  50,
-    10, 10,  20,  30,  30,  20,  10,  10,
-    5,  5,  10,  25,  25,  10,   5,   5,
-    0,  0,   0,  20,  20,   0,   0,   0,
-    5, -5, -10,   0,   0, -10,  -5,   5,
-    5, 10,  10, -20, -20,  10,  10,   5,
-    0,  0,   0,   0,   0,   0,   0,   0,
-)
-KNIGHT_SQUARE_TABLE = (
-    -50, -40, -30, -30, -30, -30, -40, -50,
-    -40, -20,  0,  0,  0,  0, -20, -40,
-    -30,  0, 10, 15, 15, 10,  0, -30,
-    -30,  5, 15, 20, 20, 15,  5, -30,
-    -30,  0, 15, 20, 20, 15,  0, -30,
-    -30,  5, 10, 15, 15, 10,  5, -30,
-    -40, -20,  0,  5,  5,  0, -20, -40,
-    -50, -40, -30, -30, -30, -30, -40, -50,
-)
-BISHOP_SQUARE_TABLE = (
-    -20, -10, -10, -10, -10, -10, -10, -20,
-    -10,  0,  0,  0,  0,  0,  0, -10,
-    -10,  0,  5, 10, 10,  5,  0, -10,
-    -10,  5,  5, 10, 10,  5,  5, -10,
-    -10,  0, 10, 10, 10, 10,  0, -10,
-    -10, 10, 10, 10, 10, 10, 10, -10,
-    -10,  5,  0,  0,  0,  0,  5, -10,
-    -20, -10, -10, -10, -10, -10, -10, -20,
-)
-ROOK_SQUARE_TABLE = (
-    0,  0,  0,  0,  0,  0,  0,  0,
-    5, 10, 10, 10, 10, 10, 10,  5,
-    -5,  0,  0,  0,  0,  0,  0, -5,
-    -5,  0,  0,  0,  0,  0,  0, -5,
-    -5,  0,  0,  0,  0,  0,  0, -5,
-    -5,  0,  0,  0,  0,  0,  0, -5,
-    -5,  0,  0,  0,  0,  0,  0, -5,
-    0,  0,  0,  5,  5,  0,  0,  0,
-)
-QUEEN_SQUARE_TABLE = (
-    -20, -10, -10, -5, -5, -10, -10, -20,
-    -10,   0,   0,  0,  0,   0,   0, -10,
-    -10,   0,   5,  5,  5,   5,   0, -10,
-    -5,   0,   5,  5,  5,   5,   0,  -5,
-    0,   0,   5,  5,  5,   5,   0,  -5,
-    -10,   5,   5,  5,  5,   5,   0, -10,
-    -10,   0,   5,  0,  0,   0,   0, -10,
-    -20, -10, -10, -5, -5, -10, -10, -20,
-)
-KING_SQUARE_TABLE = (
-    -30, -40, -40, -50, -50, -40, -40, -30,
-    -30, -40, -40, -50, -50, -40, -40, -30,
-    -30, -40, -40, -50, -50, -40, -40, -30,
-    -30, -40, -40, -50, -50, -40, -40, -30,
-    -20, -30, -30, -40, -40, -30, -30, -20,
-    -10, -20, -20, -20, -20, -20, -20, -10,
-    20,  20,   0,   0,   0,   0,  20,  20,
-    20,  30,  10,   0,   0,  10,  30,  20,
-)
-KING_SQUARE_TABLE_END_board = (
-    -50, -40, -30, -20, -20, -30, -40, -50,
-    -30, -20, -10,   0,  0, -10, -20, -30,
-    -30, -10,  20,  30, 30, 20, -10, -30,
-    -30, -10,  30,  40, 40, 30, -10, -30,
-    -30, -10,  30,  40, 40, 30, -10, -30,
-    -30, -10,  20,  30, 30, 20, -10, -30,
-    -30, -30,   0,   0,  0,  0, -30, -30,
-    -50, -30, -30, -30, -30, -30, -30, -50,
-)
-PIECE_SQUARE_TABLES = {
-    KING:   KING_SQUARE_TABLE,
-    QUEEN:  QUEEN_SQUARE_TABLE,
-    ROOK:   ROOK_SQUARE_TABLE,
-    BISHOP: BISHOP_SQUARE_TABLE,
-    KNIGHT: KNIGHT_SQUARE_TABLE,
-    PAWN:   PAWN_SQUARE_TABLE,
-}
-HEURISTIC_TABLE = {
-    material_heuristic: 0.75,
-    space_heuristic: 0.25,
-    # piece_square_heuristic: 0.0,
-}
 
 
 def play_chess(player_color, depth):
