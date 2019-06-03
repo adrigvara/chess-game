@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from math import inf
 from chess import *
+from time import time
 
 ai_color = None
 
@@ -116,8 +117,10 @@ def play_chess(player_color, depth):
     board = Board()
     while not board.is_game_over():
         view_board(board)
+        time1 = time()
         move = next_move(board, player_color, depth)
-        print("Turn:", turn, "White:" if ai_color else "Black:", move)
+        time2 = time()
+        print("Turn:", turn, "White:" if ai_color else "Black:", move, "Time:", time2-time1)
         board.push(move)
         turn += 1
     view_board(board)
