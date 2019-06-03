@@ -10,11 +10,13 @@ def best_move(board, depth):
     global ai_color
     ai_color = board.turn
     best_move_yet, highest_score_yet = None, -inf
-    for move, board in successors(board):
+    for move in board.legal_moves:
+        board.push(move)
         best_move_yet, highest_score_yet = max(
             (best_move_yet, highest_score_yet),
             (move, min_score(board, depth-1, highest_score_yet, inf)),
             key=lambda x: x[1])
+        board.pop()
     return best_move_yet
 
 
@@ -28,8 +30,10 @@ def score_search_with_cut(score_search):
 @score_search_with_cut
 def max_score(board, depth, alpha, beta):
     value = -inf
-    for move, board in successors(board):
+    for move in board.legal_moves:
+        board.push(move)
         value = max(value, min_score(board, depth-1, alpha, beta))
+        board.pop()
         if value >= beta:
             return value
         alpha = max(alpha, value)
@@ -39,22 +43,14 @@ def max_score(board, depth, alpha, beta):
 @score_search_with_cut
 def min_score(board, depth, alpha, beta):
     value = inf
-    for move, board in successors(board):
+    for move in board.legal_moves:
+        board.push(move)
         value = min(value, max_score(board, depth-1, alpha, beta))
+        board.pop()
         if value <= alpha:
             return value
         beta = min(beta, value)
     return value
-
-
-def successors(board):
-    return ((move, board_after_move(move, board)) for move in board.legal_moves)
-
-
-def board_after_move(move, board):
-    new_board = board.copy()
-    new_board.push(move)
-    return new_board
 
 
 def score(board):
